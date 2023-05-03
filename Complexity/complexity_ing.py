@@ -1,5 +1,5 @@
-import numpy as np
-import pyperclip, pyautogui, time
+from tkinter import simpledialog
+import pyperclip, pyautogui, time, numpy as np
 
 """
 과목 딕셔너리
@@ -57,3 +57,30 @@ def paste_clipboard_and_press_enter(value, enter_count = 1):
     pyautogui.hotkey('ctrl', 'v')
     time.sleep(Sleep_Time)
     pyautogui.press('enter', presses=enter_count, interval=Interval_Time)
+
+def main():
+    
+    # 입력 구간
+    # 필수 입력 사항 사용자 입력 받기
+    total_income_input = simpledialog.askstring(title='제목', prompt='내용')
+    if total_income_input is None:
+        return
+    income_rate_input = simpledialog.askstring(title='제목', prompt='내용')
+    if income_rate_input is None:
+        return
+    
+    # 입력받은 문자열을 int형변환
+    total_income = int(total_income_input)
+    income_rate = int(income_rate_input)
+
+    # 선택 입력 사항
+    income_tax_input = simpledialog.askstring(title='제목',prompt='내용')
+    income_tax = int(income_tax_input) if income_tax_input else None
+    if income_tax is not None:
+        net_income = income_tax
+    emergency_fund_input = simpledialog.askstring(title='제목', prompt='내용')
+    emergency_fund = int(emergency_fund_input) if emergency_fund_input else None
+    if emergency_fund is None:
+        total_budgt = int(total_income) * ((100 - income_rate) / 100)
+    else:
+        total_budgt = int(total_income * ((100 / income_rate) / 100)) - emergency_fund
