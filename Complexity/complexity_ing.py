@@ -60,7 +60,10 @@ def paste_clipboard_and_press_enter(value, enter_count = 1):
 
 def main():
     
-    # 입력 구간
+    """
+    simpledialog 모듈을 사용해 사용자로부터 입력값 받기
+    """
+    #? 입력 구간
     # 필수 입력 사항 사용자 입력 받기
     total_income_input = simpledialog.askstring(title='제목', prompt='내용')
     if total_income_input is None:
@@ -84,3 +87,30 @@ def main():
         total_budgt = int(total_income) * ((100 - income_rate) / 100)
     else:
         total_budgt = int(total_income * ((100 / income_rate) / 100)) - emergency_fund
+
+    #? 계산 구간
+    # 비용 범위 설정
+    entertainment_min = 11000000
+    entertainment_max = 11999999
+
+    """
+    generate_random_expense 함수를 호출해 entertainment_expense 변수를 랜덤한 값으로 생성함
+    이때, 함수의 입력값으로 entertainment_min, entertainment_max를 사용
+    """
+    # 비용 랜덤값 설정
+    entertainment_expense = generate_random_expense(entertainment_min, entertainment_max)
+    """
+    round_to_10 함수를 호출해 entertainment_expense 값을 10의 배수로 반올림
+    """
+    entertainment_expense = round_to_10(entertainment_expense)
+    """
+    expense_values 변수를 선언하고 0으로 초기화
+    """
+    expense_values = [0] * len(expenses)
+
+    """
+    find_expense_index 함수를 호출해 813이라는 인덱스를 찾고,
+    해당 인덱스의 값에 entertainment_expense 값을 할당
+    """
+    # 비용 저장
+    expense_values[find_expense_index(813)] = entertainment_expense
