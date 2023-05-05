@@ -89,6 +89,10 @@ def main():
         total_budgt = int(total_income * ((100 / income_rate) / 100)) - emergency_fund
 
     #? 계산 구간
+    """
+    전체 예산(total_budgt)과 entertainment_expense를 고려해 비용 범위를 설정하고,
+    그 범위 내에서 랜덤한 값을 생성하는 코드
+    """
     # 비용 범위 설정
     entertainment_min = 11000000
     entertainment_max = 11999999
@@ -114,3 +118,63 @@ def main():
     """
     # 비용 저장
     expense_values[find_expense_index(813)] = entertainment_expense
+
+    """    
+    total_budgt과 entertainment_expense를 이용해 travel_min과 travel_max를 설정
+    travel_min은 예산에서 entertainment_expense를 제외한 금액의 13%로, travel_max는 16%로 설정
+    이후 generate_random_expense 함수를 이용해 travel_min과 travel_max 사이의 랜덤값이 travel_expense로 할당
+    마지막으로 round_to_10 함수를 이용해 travel_expense를 10 단위로 반올림하고,
+    해당 값을 expense_values 리스트에서 812번 인덱스 위치에 할당
+    """
+    # 교통비 범위 설정 및 랜덤값 생성
+    travel_min = int((total_budgt - entertainment_expense) * 0.13)
+    travel_max = int((total_budgt - entertainment_expense) * 0.16)
+    travel_expense = generate_random_expense(travel_min, travel_max)
+    travel_expense = round_to_10(travel_expense)
+    expense_values[find_expense_index(812)] = travel_expense
+
+    # 통신비 범위 설정 및 랜덤값 생성
+    communication_min = 1600000
+    communication_max = 3600000
+    communication_expense = generate_random_expense(communication_min, communication_max)
+    communication_expense = round_to_10(communication_expense)
+    expense_values[find_expense_index(814)] = communication_expense
+
+    # 보험료 범위 설정 및 랜덤값 생성
+    insurance_min = 3000000
+    insurance_max = 4500000
+    insurance_expense = generate_random_expense(insurance_min, insurance_max)
+    insurance_expense = round_to_10(insurance_expense)
+    expense_values[find_expense_index(812)] = insurance_expense
+
+    # 도서인쇄비 범위 설정 및 랜덤값 생성
+    books_min = int((total_budgt - entertainment_expense) * 0.05)
+    books_max = int((total_budgt- entertainment_expense) * 0.06)
+    books_expense = generate_random_expense(books_min, books_max)
+    books_expense = round_to_10(books_expense)
+    expense_values[find_expense_index(826)] = books_expense
+
+    # 사무용품비 범위 설정 및 랜덤값 생성
+    office_supplies_min = int((total_budgt - entertainment_expense) * 0.05)
+    office_supplies_max = int((total_budgt - entertainment_expense) * 0.06)
+    office_supplies_expense = generate_random_expense(office_supplies_min, office_supplies_max)
+    office_supplies_expense = round_to_10(office_supplies_expense)
+    expense_values[find_expense_index(829)] = office_supplies_expense
+
+    # 소모품비 범위 설정 및 랜덤값 생성
+    consumables_min = int((total_budgt - entertainment_expense) * 0.26)
+    consumables_max = int((total_budgt - entertainment_expense) * 0.29)
+    consumables_expense = generate_random_expense(consumables_min, consumables_max)
+    consumables_expense = round_to_10(consumables_expense)
+    expense_values[find_expense_index(830)] = consumables_expense
+
+    # 지급수수료 범위 설정 및 랜덤값 생성
+    fees_min = int((total_budgt - entertainment_expense) * 0.28)
+    fees_max = int((total_budgt - entertainment_expense) * 0.32)
+    fees_expense = generate_random_expense(fees_min, fees_max)
+    fees_expense = round_to_10(fees_expense)
+    expense_values[find_expense_index(831)] = fees_expense
+
+    # 총 경비와 계산된 경비의 차액을 소모품비에 더하기
+    difference = total_budgt - sum(expense_values)
+    expense_values[find_expense_index(830)] += difference
