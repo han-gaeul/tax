@@ -178,3 +178,38 @@ def main():
     # 총 경비와 계산된 경비의 차액을 소모품비에 더하기
     difference = total_budgt - sum(expense_values)
     expense_values[find_expense_index(830)] += difference
+
+    #? 출력 구간
+    document = pyautogui.locateCenterOnScreen('document.png', grayscale=True)
+    if document is None:
+        pass
+    elif document is not None:
+        pyautogui.click(document)
+        pyautogui.typewrite('31')
+        pyautogui.typewrite('4')
+        pyautogui.typewrite('412')
+        pyautogui.press('enter', presses=2, interval=Interval_Time)
+        paste_clipboard_and_press_enter(total_income, 5)
+        if income_tax:
+            pyautogui.typewrite('3')
+            pyautogui.typewrite('136')
+            pyautogui.press('enter', presses=3, interval=Interval_Time)
+            paste_clipboard_and_press_enter(net_income, 5)
+            pyautogui.typewrite('3')
+            pyautogui.typewrite('103')
+            pyautogui.press('enter', presses=2, interval=Interval_Time)
+            paste_clipboard_and_press_enter(total_income - net_income, 5)
+        else:
+            pyautogui.typewrite('3')
+            pyautogui.typewrite('103')
+            pyautogui.press('enter', presses=2, interval=Interval_Time)
+            paste_clipboard_and_press_enter(total_income, 5)
+        for code, value in zip(expenses.keys(), expense_values):
+            if code == 813:
+                pyautogui.typewrite('3')
+                paste_clipboard_and_press_enter(code, 3)
+                paste_clipboard_and_press_enter(value, 5)
+            else:
+                pyautogui.typewrite('3')
+                paste_clipboard_and_press_enter(code, 3)
+                paste_clipboard_and_press_enter(value, 7)
