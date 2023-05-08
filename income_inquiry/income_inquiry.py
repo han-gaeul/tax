@@ -1,4 +1,8 @@
+from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 from oauth2client.service_account import ServiceAccountCredentials
 import logging, gspread, time
 
@@ -58,3 +62,74 @@ def wait_for_all_print_jobs(printer_name):
         if not jobs:
             break
         time.sleep(1)
+
+
+"""
+메인 함수 초기 설정
+"""
+def tax():
+    """
+    브라우저를 제어할 때 사용되는 옵션을 설정
+
+    selenium을 사용해 Chrome 브라우저를 제어할 때 사용할 옵션을 설정하기 위해 Options() 객체 생성
+    '--disable-extensions'는 브라우저의 확장 기능을 비활성화하는 옵션. 설치된 확장 프로그램이 동작하지 않게 함
+    '--disable-popup-blocking'은 팝업창 차단 기능을 비활성화하는 옵션. 웹 페이지에서 팝업창이 열리더라도 브라우저가 차단하지 않고 허용
+    '--disable-infobars'는 브라우저 상단의 정보 표시줄을 비활성화하는 옵션. 정보 표시줄에 표시되는 브라우저의 상태와 관련된 정보를 제거해 화면을 깔끔하게 함
+    '--disable-notifications'는 웹 페이지의 알림 기능을 비활성화하는 옵션. 웹 페이지가 알림을 표시하지 않게 설정함
+    '--start-maximized'는 브라우저를 최대화된 상태로 시작하는 옵션. 브라우저 창의 크기를 최대로 확장해 화면 전체를 차지하게 설정함 
+    """    
+    # 브라우저 꺼짐 방지 및 브라우저 최대화 설정
+    chrome_options = Options()
+    chrome_options.add_argument('--disable-extensions')
+    chrome_options.add_argument('--disable-popup-blocking')
+    chrome_options.add_argument('--disable-infobars')
+    chrome_options.add_argument('--disable-notifications')
+    chrome_options.add_argument('--start-maximized')
+
+
+    """
+    크롬 드라이버는 크롬 브라우저와 상호작용해 명령을 전달하고 웹 페이지를 제어하는 역할을 담당
+    하지만 브라우저는 지속적으로 업데이트 되며 새로운 기능과 보안 패치가 추가됨
+    따라서 드라이버도 주기적으로 업데이트 되어야 함
+    
+    ChromeDriverManager().install()는 최신 버전의 크롬 드라이버를 자동으로 다운로드 및 설치하는 도구인 ChromeDriverManager를 사용
+    """
+    # 크롬 웹 드라이버 업데이트
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+
+    """
+    JavaScript 코드를 실행해 현재 브라우저 세션의 navigator 객체의 webdriver 속성을 재정의 함
+    이를 통해 웹 페이지에서 자동화 도구인 selenium의 존재를 감지할 수 있는 기능을 우회할 수 있음
+    """
+    # 봇 감지 우회를 위한 파라미터 설정
+    driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => false});')
+    """
+    driver 객체를 사용해 지정된 url의 웹 페이지를 열도록 지시함
+    """
+    driver.get('url')
+    """
+    driver 객체를 사용해 웹 페이지가 로드되기를 기다리는 대기 객체를 생성
+    WebDriverWait 클래스는 특정 조건이 충족될 때까지 대기할 수 있는 기능을 제공
+    최대 30초 동안 웹 페이지가 로드될 때까지 기다리고, 이후에는 해당 대기 객체를 사용해 웹 페이지의 요소를 찾거나 조작
+    """
+    wait = WebDriverWait(driver, 30)
+
+
+    """
+    핸들은 윈도우나 창을 고유하게 식별하는 값
+    이를 통해 나중에 메인 창으로 돌아올 때 사용
+    """
+    # 메인 창의 핸들 저장
+    main_window_handle = driver.current_window_handle
+    """
+    'EC.number_of_windows_to_be(2)'는 현재 열린 창의 개수가 2개가 될 때까지 기도리도록 설정하는 조건
+    """
+    # 팝업이 나타날 때까지 기다림
+    wait.until(EC.number_of_windows_to_be(2))
+    """
+    driver 객체를 사용해 메인 창으로 다시 전환
+    이를 통해 팝업 창을 다룬 후 원래의 메인 창으로 돌아올 수 있음
+    'switch_to.window()' 메서드는 지정된 핸들에 해당하는 창으로 전환
+    """
+    # 메인 창으로 돌아오기
+    driver.switch_to.window(main_window_handle)
