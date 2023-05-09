@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from oauth2client.service_account import ServiceAccountCredentials
 import logging, gspread, time
@@ -133,3 +134,44 @@ def tax():
     """
     # 메인 창으로 돌아오기
     driver.switch_to.window(main_window_handle)
+
+
+    """
+    By.CSS_SELECTOR로 CSS 선택자를 사용해 클릭 가능한 요소를 찾고
+    id_login_btn 요소를 클릭
+    By.ID로 웹 페이지에서 ID로 요소를 찾음 
+    """
+    # 아이디로 로그인 버튼 클릭
+    time.sleep(1)
+    id_login_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'selector')))
+    id_login_btn.click()
+    wait.until(EC.element_to_be_clickable((By.ID, 'id')))
+
+
+
+    """
+    여러 사용자의 계정을 반복하여 로그인하기 위해 dicts 딕셔너리의 각 항목에서 사용자 ID와 비밀번호를 하나씩 가져옴
+    By.ID로 웹 페이지에서 ID로 요소를 찾고, 찾은 ID 입력 필드에 이전에 입력되어 있을 수 있는 내용을 제거하고 새로운 ID를 입력함
+    user_pw도 user_id와 동일한 작업 반복
+    마지막으로 로그인에 사용된 사용자 정보를 제거하기 위해 dicts 딕셔너리에서 첫 번째 키를 가져와 제거 후 반복문 종료
+    """
+    # 로그인
+    for user_id, user_pw in dicts.items():
+        id_input = driver.find_element(By.ID, 'id')
+        pw_input = driver.find_element(By.ID, 'id')
+        id_input.clear()
+        id_input.send_keys(user_id)
+        pw_input.clear()
+        pw_input.send_keys(user_pw)
+        currunt_key = list(dicts.keys())[0]
+        del dicts[currunt_key]
+        break
+
+
+    """
+    By.ID로 웹 페이지에서 ID로 요소를 찾고, 찾은 요소를 클릭
+    """
+    # 로그인 버튼 클릭
+    login_btn_elem = driver.find_element(By.ID, 'id')
+    login_btn_elem.click()
+    time.sleep(3)
