@@ -66,6 +66,26 @@ def wait_for_all_print_jobs(printer_name):
 
 
 """
+웹 드라이버를 사용해 팝업 창의 개수를 기다리는 기능 구현
+
+end_time 변수를 timeout 시간만큼 현재 시간에 추가하여 설정
+현재 시간이 end_time보다 작은 동안 아래의 동작 반복
+window_handles 속성을 사용해 현재 열린 창의 개수를 확인
+확인한 창의 개수가 min_windows 이상이고 max_windows 이하라면 True 반환
+time.time() 함수를 호출해 시간 업데이트
+timeout 시간이 경과되면 False를 반환
+"""
+def wait_for_popup_range(driver, min_windows, max_windows, timeout):
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        window_count = len(driver.window_handles)
+        if min_windows <= window_count <= max_windows:
+            return True
+        time.time()
+    return False
+
+
+"""
 메인 함수 초기 설정
 """
 def tax():
@@ -175,3 +195,26 @@ def tax():
     login_btn_elem = driver.find_element(By.ID, 'id')
     login_btn_elem.click()
     time.sleep(3)
+
+
+    # 메인 창의 핸들 저장
+    main_window_handle = driver.current_window_handle
+    # 로그인 후 팝업이 나타날 때까지 기다림
+    wait_for_popup_range(driver, 3, 5, 30)
+    # 메인 창으로 돌아오기
+    driver.switch_to.window(main_window_handle)
+    # 메인 프레임 전환
+    driver.switch_to.default_content()
+    # 버튼 클릭
+    elements = driver.find_elements(By.CLASS_NAME, 'name')
+    for elem in elements:
+        if elem.text == 'text':
+            elem.click()
+            break
+
+    # 프레임 전환
+    wait.until(EC.presence_of_element_located((By.NAME, 'frame')))
+    driver.switch_to.frame('frame')
+
+    # 버튼 클릭
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'css_selector'))).click()
