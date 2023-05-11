@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from oauth2client.service_account import ServiceAccountCredentials
 import logging, gspread, time
@@ -205,6 +206,14 @@ def tax():
     driver.switch_to.window(main_window_handle)
     # 메인 프레임 전환
     driver.switch_to.default_content()
+
+    """
+    driver 객체의 find_elements 메서드를 사용해 웹 페이지에서 클래스 이름이 'name'인 모든 요소를 찾음
+    찾은 모든 요소는 'elements' 리스트에 저장하고, 각 요소에 대해 반복
+    현재 반복 중인 요소의 텍스트를 가져와서 'text'와 비교
+    요소의 텍스트가 'text'와 일치하는 경우에만 조건이 참이 되고, 참인 경우 해당 요소를 클릭
+    요소를 클릭한 후에는 더이상 반복하지 않고 반복문 종료
+    """
     # 버튼 클릭
     elements = driver.find_elements(By.CLASS_NAME, 'name')
     for elem in elements:
@@ -212,9 +221,68 @@ def tax():
             elem.click()
             break
 
+
+    """
+    wait 객체를 사용해 기다릴 때까지 대기하고, 조건이 충족되면 다음 단계로 진행
+    EC.presence_of_element_located 메서드는 
+    주어진 로케이터(By.NAME)와 값('frame')에 해당하는 요소가 페이지에 존재할 때까지 대기하고,
+    해당 요소를 찾으면 'frame'이라는 이름을 가진 프레임으로 전환하여 
+    해당 프레임 내에서 작업을 수행할 수 있게 됨
+    """
     # 프레임 전환
     wait.until(EC.presence_of_element_located((By.NAME, 'frame')))
     driver.switch_to.frame('frame')
 
     # 버튼 클릭
     wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'css_selector'))).click()
+
+
+    """
+    웹 드라이버를 사용해 경고창이 나타날 때까지 최대 3초 동안 대기하고,
+    경고창이 나타나면 해당 창을 수락(확인)하는 작업을 수행하는 코드
+
+    WebDriverWait 객체를 생성해 driver 객체를 전달
+    생성된 WebDriverWait 객체는 최대 3초 동안 대기하며, 조건이 충족될 때까지 기다림
+    EC.alert_is_present() 조건은 경고창이 나타날 때까지 대기
+    경고창이 나타나면 driver 객체의 switch_to.alert 속성을 사용해 해당 경고창에 대한 핸들을 얻음
+    alert 객체의 accept() 메서드를 사용해 경고창을 수락(확인)함
+
+    예외가 발생하면(경고창이 나타나지 않는 경우), 빈 문자열 출력
+    즉, 아무 작업도 수행하지 않고 넘어감    
+    """
+    # 경고창 발생
+    try:
+        WebDriverWait(driver, 3).until(EC.alert_is_present())
+        alert = driver.switch_to.alert
+        alert.accept()
+    except:
+        print('')
+
+    # select 태그가 로드될 때까지 대기
+    Preview = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'css_selector')))
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'css_selector')))
+    select_element = wait.until(EC.presence_of_all_elements_located(By.ID, 'id'))
+
+
+    """
+    select_element라는 변수로 전달된 요소를 기반으로 Select 객체 생성
+    Select 객체는 웹 페이지의 드롭다운 리스트('select' 요소)를 조작하는데 사용
+    select 객체의 options 속성을 사용해 해당 드롭다운 리스트의 모든 옵션을 가져옴
+    options 리스트에 저장된 각 옵션에 대해 반복하면서 '2022'와 비교
+    옵션의 텍스트가 '2022'와 일치하는 경우 조건이 참이 되고,
+    select 객체의 select_by_visible_text 메서드를 사용해 '2022'라는 텍스트를 가진 옵션을 선택
+    옵션을 선택한 후에는 더이상 반복하지 않고 반복문 종료
+    """
+    # sleect 객체 생성
+    select = Select(select_element)
+    # select 객체에서 모든 옵션을 가져옴
+    options = select.options
+    # 옵션 리스트를 순회하며 선택하고자 하는 옵션을 확인하고 선택
+    for option in options:
+        if option.text == '2022':
+            select.select_by_visible_text('2022')
+            break
+
+    # 클릭
+    time.sleep(1)
+    Preview.click()
