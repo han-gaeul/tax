@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from oauth2client.service_account import ServiceAccountCredentials
-import logging, gspread, time
+import logging, gspread, time, pyautogui, keyboard
 
 
 """
@@ -286,3 +286,51 @@ def tax():
     # 클릭
     time.sleep(1)
     Preview.click()
+
+
+    """
+    image_root.png를 찾음. 이때, gratscale=True 매개변수로 이미지를 흑백으로 처리해 검색
+    이미지를 찾으면 pyautogui.press 함수를 이용해서 tab과 enter를 누름
+    이미지를 찾지 못하면 1초간 대기하고 다시 반복
+    """
+    # 프린트
+    while True:
+        report = pyautogui.locateCenterOnScreen(r'image_root.png', grayscale=True)
+        if report:
+            pyautogui.press('tab')
+            pyautogui.press('enter')
+            time.sleep(1)
+            pyautogui.press('tab', presses=4, interval=0.3)
+            pyautogui.press('enter', presses=2, interval=3)
+            break
+        else:
+            time.sleep(1)
+            continue
+    
+
+    """
+    wait_for_all_print_jobs() 함수를 사용해
+    현재 기본 프린터의 모든 인쇄 작업이 완료될 때까지 기다림
+    10초 동안 대기하고, driver.quit()을 사용해 사용 중인 WebDriver를 종료
+    """
+    printer_name = win32print.GetDefaultPrinter()
+    wait_for_all_print_jobs(printer_name)
+    time.sleep(10)
+    driver.quit()
+    return
+
+
+"""
+tax() 함수를 호출해 루프의 각 반복마다 실행
+keyboard 모듈을 사용해 'page down' 키가 눌려있는지 확인
+만약 해당 키가 눌려있다면 조건식이 참이 되어 루프를 중단하고 빠져나감
+'page down' 키가 눌려있지 않다면 다시 루프의 첫번째 줄로 돌아가서
+tax() 함수를 실행하고, 조건을 다시 확인함
+이 과정은 'page down' 키가 눌릴 때까지 반복
+"""
+def start():
+    while True:
+        tax()
+        if keyboard.is_pressed('page down'):
+            break
+start()
